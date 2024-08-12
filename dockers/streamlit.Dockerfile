@@ -12,6 +12,6 @@ WORKDIR /opt/rag-backend
 
 RUN ls -l /opt/rag-backend
 
-EXPOSE 8000
+EXPOSE 8501
 
-CMD ["sh", "-c", "uvicorn rag_backend.apps.v1:app"]
+CMD ["sh", "-c", "streamlit run streamlit_chatbot.py"]

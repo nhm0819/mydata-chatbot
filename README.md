@@ -15,7 +15,7 @@ pip install -r requirements.txt
 # Run Backend Server
 - run following command:
 ```bash
-gunicorn rag_backend.apps.v1:app -c gunicorn.conf.py
+uvicorn rag_backend.apps.v1:app --env-file .env
 ```
 
 # Run Streamlit Server

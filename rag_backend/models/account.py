@@ -6,8 +6,6 @@ from sqlalchemy.orm import declarative_base
 from sqlalchemy import Integer, String, Text, TIMESTAMP
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.sql import func
-from rag_backend.database import session
-from rag_backend.schemas.account import Account
 from rag_backend.models import Base
 
 
@@ -16,13 +14,13 @@ class Account(Base):
 
     id = mapped_column(Integer, primary_key=True, autoincrement=True)
     uid = mapped_column(String(40), nullable=False, index=True, unique=True)
-    ctdt = mapped_column(TIMESTAMP(timezone=False), server_default=func.now())
+    create_at = mapped_column(TIMESTAMP(timezone=False), server_default=func.now())
 
     def dict(self):
         return {c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
 
     @staticmethod
-    def from_schema(schema: BaseModel) -> Account:
+    def from_schema(schema: BaseModel):
         fields = set(inspect(Account).attrs.keys())
         dictionary = {f: v for f, v in schema.dict().items() if f in fields}
         orm = Account(**dictionary)
