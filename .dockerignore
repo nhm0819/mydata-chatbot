@@ -1,0 +1,17 @@
+# fixtures
+
+.idea
+.git
+.DS_Store
+.dockerignore
+
+.env
+**/*.env
+**/*.pptx
+**/*.pdf
+**/*.db
+
+fixtures
+tests
+bulk
+docs
