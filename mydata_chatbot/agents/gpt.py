@@ -9,15 +9,15 @@ from langchain.tools.retriever import create_retriever_tool
 from langchain_community.chat_message_histories.sql import SQLChatMessageHistory
 from langchain_community.tools.tavily_search import TavilySearchResults
 
-from rag_backend.database import engine
-from rag_backend.agents.prompts import mydata_prompt
-from rag_backend.database.chroma import (
+from mydata_chatbot.database import engine
+from mydata_chatbot.agents.prompts import mydata_prompt
+from mydata_chatbot.database.chroma import (
     mydata_api_docs_chroma,
     mydata_guideline_docs_chroma,
     mydata_other_docs_chroma,
 )
 
-from rag_backend.configs import settings
+from mydata_chatbot.configs import settings
 
 
 def build():

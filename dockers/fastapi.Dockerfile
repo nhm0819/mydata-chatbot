@@ -16,4 +16,4 @@ RUN ls -l /opt/rag-backend
 
 #EXPOSE 8000
 
-CMD uvicorn --host 0.0.0.0 --port 8000 rag_backend.apps.v1:app
+CMD uvicorn --host 0.0.0.0 --port 8000 mydata_chatbot.apps.v1:app

@@ -2,9 +2,9 @@ from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from rag_backend.crud.base import CRUDBase, ModelType
-from rag_backend.models.document import Document
-from rag_backend.schemas.document import DocumentCreate, DocumentUpdate
+from mydata_chatbot.crud.base import CRUDBase, ModelType
+from mydata_chatbot.models.document import Document
+from mydata_chatbot.schemas.document import DocumentCreate, DocumentUpdate
 
 
 class CRUDDocument(CRUDBase[Document, DocumentCreate, DocumentUpdate]):

@@ -7,11 +7,11 @@ import asyncio
 from httpx import AsyncClient
 
 import directories
-from rag_backend import database, models
+from mydata_chatbot import database, models
 
 logger = logging.getLogger(__name__)
 
-from rag_backend.database import session, engine
+from mydata_chatbot.database import session, engine
 
 
 async def get_db_session():
@@ -44,7 +44,7 @@ def setup_lifecycle(request):
 
 @pytest_asyncio.fixture(scope="session")
 async def client():
-    from rag_backend.apps.v1 import app
+    from mydata_chatbot.apps.v1 import app
 
     async with AsyncClient(app=app, base_url="http://test") as a_client:
         print("Creating a client..")

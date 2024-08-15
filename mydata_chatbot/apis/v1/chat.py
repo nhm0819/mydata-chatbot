@@ -3,8 +3,8 @@ import logging
 from fastapi import APIRouter
 from starlette.responses import PlainTextResponse, StreamingResponse
 
-from rag_backend import agents
-from rag_backend.schemas.prompt import Prompt
+from mydata_chatbot import agents
+from mydata_chatbot.schemas.prompt import Prompt
 
 
 router = APIRouter(prefix="/v1/chat")

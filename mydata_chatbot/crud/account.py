@@ -2,9 +2,9 @@ from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from rag_backend.crud.base import CRUDBase, ModelType
-from rag_backend.models.account import Account
-from rag_backend.schemas.account import AccountCreate, AccountUpdate
+from mydata_chatbot.crud.base import CRUDBase, ModelType
+from mydata_chatbot.models.account import Account
+from mydata_chatbot.schemas.account import AccountCreate, AccountUpdate
 
 
 class CRUDAccount(CRUDBase[Account, AccountCreate, AccountUpdate]):

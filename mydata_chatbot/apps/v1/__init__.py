@@ -13,10 +13,10 @@ from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from starlette.staticfiles import StaticFiles
 
-from rag_backend import apis
-from rag_backend.assemble import event
-from rag_backend.assemble import exception
-from rag_backend.assemble.middleware import cors_middleware
+from mydata_chatbot import apis
+from mydata_chatbot.assemble import event
+from mydata_chatbot.assemble import exception
+from mydata_chatbot.assemble.middleware import cors_middleware
 
 app = FastAPI(
     docs_url="/docs",

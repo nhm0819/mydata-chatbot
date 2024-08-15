@@ -1,5 +1,5 @@
-# RAG-Backend
-- RAG chatbot with Langchain and ChromaDB
+# mydata-chatbot
+- mydata RAG with Langchain and ChromaDB
 - integration with FastAPI
 - fast shareable to use Streamlit
 
@@ -64,7 +64,7 @@ OPENAI_API_KEY=openai_api_key # Required
 ### Run Backend Server
 - run following command:
 ```bash
-uvicorn rag_backend.apps.v1:app # --env-file .env
+uvicorn mydata_chatbot.apps.v1:app # --env-file .env
 ```
 <br>
 
@@ -108,9 +108,9 @@ streamlit run strealit_async.py
 
 ## Debug
 1. You can use **Langsmith** (Free for 1 user; 5,000 free traces per month)
-2. run rag_backend/agents/gpt.py
+2. run mydata_chatbot/agents/gpt.py
    1. refer to the **main** function at the bottom
-3. You can get retriever result. get rid of '#' in **rag_backend/apis/v1/chat.py** in line 98.
+3. You can get retriever result. get rid of '#' in **mydata_chatbot/apis/v1/chat.py** in line 98.
 ```python
 elif kind == "on_tool_end":
     yield "\n"

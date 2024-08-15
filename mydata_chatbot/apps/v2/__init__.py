@@ -3,7 +3,7 @@
 from fastapi import FastAPI
 from starlette.responses import PlainTextResponse
 
-from rag_backend.assemble.middleware import cors_middleware
+from mydata_chatbot.assemble.middleware import cors_middleware
 
 app = FastAPI(
     docs_url="/docs",

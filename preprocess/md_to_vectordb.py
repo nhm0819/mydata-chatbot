@@ -8,7 +8,7 @@ from tqdm import tqdm
 import dotenv
 dotenv.load_dotenv(root / ".env")
 
-from rag_backend.database.chroma import (
+from mydata_chatbot.database.chroma import (
     mydata_guideline_docs_chroma,
     mydata_api_docs_chroma,
     mydata_other_docs_chroma,

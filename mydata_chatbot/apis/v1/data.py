@@ -9,10 +9,10 @@ import os
 import uuid
 
 from langchain.text_splitter import MarkdownHeaderTextSplitter, MarkdownTextSplitter
-from rag_backend.database.chroma import mydata_other_docs_chroma
-from rag_backend.database import get_db_session
-from rag_backend.crud.document import document
-from rag_backend.schemas.document import DocumentCreate
+from mydata_chatbot.database.chroma import mydata_other_docs_chroma
+from mydata_chatbot.database import get_db_session
+from mydata_chatbot.crud.document import document
+from mydata_chatbot.schemas.document import DocumentCreate
 
 
 router = APIRouter(prefix="/v1/data", tags=["data"])

@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import async_scoped_session
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from rag_backend.configs import settings
+from mydata_chatbot.configs import settings
 
 
 engine: AsyncEngine = create_async_engine(

@@ -6,7 +6,7 @@ from sqlalchemy import select, text
 from sqlalchemy import exc
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from rag_backend.models import Base
+from mydata_chatbot.models import Base
 
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)

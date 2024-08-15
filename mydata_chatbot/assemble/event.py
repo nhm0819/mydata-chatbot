@@ -1,8 +1,8 @@
 import logging.config
 
-from rag_backend import database
-from rag_backend import models
-from rag_backend.configs import settings as default_settings
+from mydata_chatbot import database
+from mydata_chatbot import models
+from mydata_chatbot.configs import settings as default_settings
 
 logger = logging.getLogger(__name__)
 

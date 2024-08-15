@@ -4,7 +4,7 @@ from pathlib import Path
 
 root = Path(os.path.dirname(__file__)).parent
 
-home = root.joinpath("rag_backend")
+home = root.joinpath("mydata_chatbot")
 
 static = home.joinpath("static")
 
