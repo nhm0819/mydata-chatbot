@@ -1,19 +1,8 @@
 import asyncio
-from operator import itemgetter
-from typing import Sequence
 import os
 
 from langchain.agents import AgentExecutor, create_openai_tools_agent
-from langchain.agents.format_scratchpad.openai_tools import (
-    format_to_openai_tool_messages,
-)
-from langchain.agents.output_parsers.openai_tools import OpenAIToolsAgentOutputParser
-from langchain_core.language_models import BaseLanguageModel
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import Runnable, RunnablePassthrough
 from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain_core.tools import BaseTool
-from langchain_core.utils.function_calling import convert_to_openai_tool
 from langchain_openai import ChatOpenAI
 from langchain.tools.retriever import create_retriever_tool
 
@@ -27,7 +16,6 @@ from rag_backend.database.chroma import (
     mydata_guideline_docs_chroma,
     mydata_other_docs_chroma,
 )
-from rag_backend.agents.retrievers import format_by_newline
 
 from rag_backend.configs import settings
 
@@ -42,15 +30,13 @@ def build():
     if os.getenv("TAVILY_API_KEY"):
         tools.append(
             TavilySearchResults(
-                max_results=5,
+                max_results=3,
                 search_depth="advanced",
                 include_answer=True,
                 include_raw_content=True,
                 include_images=True,
                 # include_domains=[...],
                 # exclude_domains=[...],
-                # name="...",            # overwrite default tool name
-                # description="...",     # overwrite default tool description
                 # args_schema=...,       # overwrite default args_schema: BaseModel
             )
         )
@@ -60,12 +46,12 @@ def build():
             mydata_guideline_docs_chroma.as_retriever(
                 search_type="mmr",
                 search_kwargs={
-                    "k": 5,
+                    "k": 4,
                     "fetch_k": 20,
                 },
             ),
             name="mydata_guideline_docs_search",
-            description="데이터 사용 정책 및 규정에 대한 질문이 들어오면 이 도구를 사용합니다.",
+            description="개인신용정보, 데이터 사용 정책 및 규정에 대한 질문이 들어오면 이 도구를 사용합니다.",
         )
     )
 
@@ -74,7 +60,7 @@ def build():
             mydata_api_docs_chroma.as_retriever(
                 search_type="mmr",
                 search_kwargs={
-                    "k": 5,
+                    "k": 4,
                     "fetch_k": 20,
                 },
             ),
@@ -83,19 +69,19 @@ def build():
         )
     )
 
-    # tools.append(
-    #     create_retriever_tool(
-    #         mydata_other_docs_chroma.as_retriever(
-    #             search_type="mmr",
-    #             search_kwargs={
-    #                 'k': 5,
-    #                 'fetch_k': 20,
-    #             }
-    #         ),
-    #         name="mydata_other_docs_search",
-    #         description="질문에 대해 사용할 도구가 없다면 이 도구를 사용해야 합니다.",
-    #     )
-    # )
+    tools.append(
+        create_retriever_tool(
+            mydata_other_docs_chroma.as_retriever(
+                search_type="mmr",
+                search_kwargs={
+                    'k': 4,
+                    'fetch_k': 20,
+                }
+            ),
+            name="when_cannot_answer",
+            description="다른 도구들을 먼저 사용하고 답변할 수 없을 때 마지막으로 이 도구를 사용해야 합니다.",
+        )
+    )
 
     agent = create_openai_tools_agent(llm, tools, mydata_prompt)
 
@@ -103,7 +89,8 @@ def build():
         verbose = True
     else:
         verbose = False
-    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=verbose)
+    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=verbose, return_intermediate_steps=True,
+                                   max_iterations=5)
 
     return RunnableWithMessageHistory(
         agent_executor,
@@ -118,6 +105,7 @@ def build():
 
 async def main():
     from langchain.globals import set_verbose
+
     set_verbose(True)
 
     agent = build()
@@ -128,6 +116,11 @@ async def main():
             config={"configurable": {"session_id": "foo"}},
         ):
             print(event)
+            # if "intermediate_steps" in event.keys():
+            #     for step in event["intermediate_steps"]:
+            #         if isinstance(step[1], str):
+            #             images = [line.strip() for line in step[1].split("\n") if line.startswith("![]")]
+            #     pass
 
         """if you want to see stream_event..."""
         # async def generate():
@@ -178,6 +171,8 @@ async def main():
         #                 f"with output:\n{event['data'].get('output')}"
         #             )
         #             yield "\n"
+        #         elif kind == "on_agent_finish":
+        #             print(kind)
         #
         # async for chunk in generate():
         #     print(chunk, end="")

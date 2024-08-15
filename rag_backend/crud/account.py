@@ -8,9 +8,7 @@ from rag_backend.schemas.account import AccountCreate, AccountUpdate
 
 
 class CRUDAccount(CRUDBase[Account, AccountCreate, AccountUpdate]):
-    async def get_by_uid(
-        self, db: AsyncSession, uid: str
-    ) -> Optional[ModelType]:
+    async def get_by_uid(self, db: AsyncSession, uid: str) -> Optional[ModelType]:
         query = select(self.model).where(self.model.uid == uid)
         query_result = await db.execute(query)
         return query_result.scalar_one_or_none()

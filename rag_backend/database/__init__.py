@@ -28,3 +28,13 @@ session: AsyncSession | async_scoped_session = async_scoped_session(
     session_factory=async_session_factory,
     scopefunc=asyncio.current_task,
 )
+
+async def get_db_session():
+    db = session()
+    try:
+        yield db
+    except:
+        await db.rollback()
+        raise
+    finally:
+        await db.close()

@@ -1,10 +1,12 @@
-FROM python:3.11-slim-buster
+FROM python:3.10-slim-buster
 
 RUN apt-get update && apt-get install -y git
 
 COPY requirements.txt /opt/rag-backend/requirements.txt
+#RUN pip install --upgrade pip
+
 RUN pip install -r /opt/rag-backend/requirements.txt --no-cache-dir
-#RUN pip install pysqlite3-binary --no-cache-dir
+RUN pip install pysqlite3-binary --no-cache-dir
 #RUN pip install numexpr
 
 COPY ../.. /opt/rag-backend
@@ -12,6 +14,6 @@ WORKDIR /opt/rag-backend
 
 RUN ls -l /opt/rag-backend
 
-EXPOSE 8000
+#EXPOSE 8000
 
-CMD ["sh", "-c", "uvicorn rag_backend.apps.v1:app"]
+CMD uvicorn --host 0.0.0.0 --port 8000 rag_backend.apps.v1:app

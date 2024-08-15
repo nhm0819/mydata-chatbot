@@ -3,12 +3,27 @@ import logging.config
 import pytest
 import pytest_asyncio
 import yaml
+import asyncio
 from httpx import AsyncClient
 
 import directories
 from rag_backend import database, models
 
 logger = logging.getLogger(__name__)
+
+from rag_backend.database import session, engine
+
+
+async def get_db_session():
+    db = session()
+    try:
+        yield db
+    except:
+        await db.rollback()
+        raise
+    finally:
+        await db.close()
+
 
 
 @pytest_asyncio.fixture(scope="session", autouse=True)
@@ -38,10 +53,10 @@ async def client():
 
 @pytest_asyncio.fixture(scope="session", autouse=True)
 async def create_and_drop_all():
-    async with database.engine.begin() as conn:
+    async with engine.begin() as conn:
         await conn.run_sync(models.Base.metadata.create_all)
         logger.debug("Database created.")
     yield
-    async with database.engine.begin() as conn:
+    async with engine.begin() as conn:
         await conn.run_sync(models.Base.metadata.drop_all)
         logger.debug("Database dropped.")

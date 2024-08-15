@@ -169,5 +169,5 @@ cython_debug/
 **/*.db
 fixtures/*
 
-rag_backend/static/upload/*
+rag_backend/static/upload/
 

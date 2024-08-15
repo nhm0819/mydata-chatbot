@@ -1,14 +1,10 @@
 import os
 import uuid
-import requests
-import json
-import re
 import logging
 from datetime import datetime
 from pytz import timezone
 import asyncio
 import streamlit as st
-from datetime import datetime
 import httpx
 
 tz = "Asia/Seoul"
@@ -18,7 +14,7 @@ logging.Formatter.converter = lambda *args: datetime.now(tz=tz_info).timetuple()
 logger = logging.getLogger()
 logger.addHandler(logging.StreamHandler())
 
-timeout = 60
+timeout = 30
 
 if "session_id" not in st.session_state:
     st.session_state["session_id"] = str(uuid.uuid4())
@@ -30,7 +26,9 @@ st.set_page_config(page_title="챗봇", page_icon="🤖", layout="wide")
 
 with st.sidebar:
     MODEL = st.selectbox("Choose a model", ["gpt"], key="model")
-    STREAM_MODE = st.selectbox("Choose a model", ["stream", "stream_events"], key="stream_mode")
+    STREAM_MODE = st.selectbox(
+        "Choose a model", ["stream", "stream_events"], key="stream_mode"
+    )
 
 st.title(f"Finance Mydata Chatbot")
 if "messages" not in st.session_state:
@@ -58,7 +56,7 @@ async def streaming_response(user_query: str, session_id: str, **kwargs):
     placeholder = st.empty()
     async with httpx.AsyncClient() as client:
         async with client.stream(
-            method="POST", url=url, json=param, timeout=120
+            method="POST", url=url, json=param, timeout=timeout
         ) as response:
             async for chunk in response.aiter_text():
                 streamed_text += chunk
@@ -68,7 +66,7 @@ async def streaming_response(user_query: str, session_id: str, **kwargs):
     return streamed_text
 
 
-async def answer_(user_query):
+async def get_chat_answer(user_query):
     streamed_text = await streaming_response(
         user_query=user_query,
         session_id=st.session_state.session_id,
@@ -79,7 +77,7 @@ async def answer_(user_query):
 
 
 async def answer(user_query):
-    await asyncio.gather(answer_(user_query))
+    await asyncio.gather(get_chat_answer(user_query))
 
 
 async def main():

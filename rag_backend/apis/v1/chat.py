@@ -51,7 +51,6 @@ async def stream_events(model: str, p: Prompt) -> StreamingResponse:
     agent = llms[model]
 
     async def generate():
-        num_events = 0
         async for event in agent.astream_events(
             input={"input": p.user_query},
             config={"configurable": {"session_id": p.session_id}},
@@ -99,11 +98,5 @@ async def stream_events(model: str, p: Prompt) -> StreamingResponse:
                     # f"with output: {event['data'].get('output')}"
                 )
                 yield "\n"
-
-            num_events += 1
-            if num_events > 10:
-                # Truncate the output
-                yield "..."
-                break
 
     return StreamingResponse(generate(), media_type="text/event-stream")

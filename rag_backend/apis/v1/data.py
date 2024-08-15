@@ -1,14 +1,19 @@
 import logging
 from typing import Annotated, Union, Dict, List, Optional
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 import aiofiles
 import pymupdf4llm
 from directories import upload
 import os
 import uuid
-import re
-from rag_backend.database.chroma import mydata_other_docs_chroma
+
 from langchain.text_splitter import MarkdownHeaderTextSplitter, MarkdownTextSplitter
+from rag_backend.database.chroma import mydata_other_docs_chroma
+from rag_backend.database import get_db_session
+from rag_backend.crud.document import document
+from rag_backend.schemas.document import DocumentCreate
+
 
 router = APIRouter(prefix="/v1/data", tags=["data"])
 
@@ -18,32 +23,40 @@ logger = logging.getLogger(__name__)
 @router.post("/upload/pdf")
 async def upload_pdf(
     pdf_file: Annotated[UploadFile, File(description="A PDF file")],
-    replace_list: Optional[List] = None,
+    db: AsyncSession = Depends(get_db_session),
+    write_images: bool = False,
+    chunk_size: int = 300,
+    chunk_overlap: int = 50,
 ):
     """pdf file to vector store"""
-    if replace_list is None:
-        replace_list = []
 
     ### async read
     pdf_data = await pdf_file.read()
 
     pdf_folder = upload / pdf_file.filename[:-4]
-    if os.path.exists(pdf_folder):
-        return "File already exists"
+    if not os.path.exists(pdf_folder):
+        os.makedirs(pdf_folder)
 
-    async with aiofiles.open(pdf_folder / pdf_file.filename, "wb") as out_file:
-        await out_file.write(pdf_data)
+    pdf_path = pdf_folder / pdf_file.filename
+    # if os.path.exists(pdf_folder / pdf_file.filename):
+    #     return "File already exists"
+
+    async with aiofiles.open(pdf_path, "wb") as out_pdf_file:
+        await out_pdf_file.write(pdf_data)
+    logger.info("Save pdf")
 
     ### pdf to markdown
     md_text = pymupdf4llm.to_markdown(
-        upload / pdf_file.filename,
-        write_images=True,
+        pdf_path,
+        write_images=write_images,
         image_path=(pdf_folder / "images").__str__(),
     )
+    logger.info("Reformat pdf to markdown")
 
-    ### remove words
-    for replace_word in replace_list:
-        md_text = re.sub(replace_word, "", md_text)
+    md_path = pdf_path.__str__()[:-3] + "md"
+    async with aiofiles.open(md_path, "w") as out_md_file:
+        await out_md_file.write(md_text)
+    logger.info("Save markdown")
 
     ### Markdown splits
     headers_to_split_on = [
@@ -60,15 +73,14 @@ async def upload_pdf(
     md_header_splits = markdown_splitter.split_text(md_text)
 
     ### Text splits
-    chunk_size = 300
-    chunk_overlap = 50
     text_splitter = MarkdownTextSplitter(
         chunk_size=chunk_size, chunk_overlap=chunk_overlap
     )
+    logger.info("Split text into chunks")
 
     ### Split docs
     docs = text_splitter.split_documents(md_header_splits)
-    print("Number of documents: ", len(docs))
+    logger.info(f"Number of documents: {len(docs)}")
 
     for idx, doc in enumerate(docs):
         doc.id = idx + 1
@@ -79,11 +91,18 @@ async def upload_pdf(
             if header in doc.metadata.keys():
                 doc.page_content = doc.metadata[header] + "\n" + doc.page_content
 
-    print(
-        "Top 5 length of docs content: ",
-        sorted([len(doc.page_content) for doc in docs], reverse=True)[:5],
+    logger.info(
+        f"Top 5 length of docs content: {sorted([len(doc.page_content) for doc in docs], reverse=True)[:5]}",
     )
 
-    # mydata_other_docs_chroma.aadd_documents(documents=docs, ids=[str(uuid.uuid4()) for _ in range(len(docs))])
 
-    return "Completed"
+    if len(await document.get_by_filename(db=db, filename=pdf_file.filename)) > 0:
+        raise HTTPException(status_code=404, detail=f"{pdf_file.filename} is already in db.")
+
+    logger.info("Adding to ChromaDB...")
+    await mydata_other_docs_chroma.aadd_documents(documents=docs, ids=[str(uuid.uuid4()) for _ in range(len(docs))])
+
+    logger.info("Adding to RDB...")
+    await document.create(db=db, obj_in=DocumentCreate(filename=pdf_file.filename))
+
+    return {"status": "completed"}
