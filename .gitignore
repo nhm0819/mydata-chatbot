@@ -167,7 +167,7 @@ cython_debug/
 **/*.pptx
 **/*.pdf
 **/*.db
-fixtures/*
+fixtures/*.pdf
 
 rag_backend/static/upload/
 

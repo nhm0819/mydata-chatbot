@@ -53,6 +53,9 @@ OPENAI_API_KEY=openai_api_key # Required
 
 ### Preprocess
 1. add .pdf files in folder "./fixtures/"
+   - default 2 files in chroma db
+     - chroma/mydata_api_docs
+     - chroma/mydata_guideline_docs
 2. insert into Vector Database(Chroma) to use below.
    1. python preprocess/pdf_to_md.py
    2. python preprocess/md_to_vectordb.py
