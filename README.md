@@ -1,11 +1,11 @@
 # mydata-chatbot
-- mydata RAG with Langchain and ChromaDB
-- integration with FastAPI
-- fast shareable to use Streamlit
+- Mydata RAG with **Langchain** and **ChromaDB**
+- Integration with **FastAPI**
+- Fast shareable to use **Streamlit**
+- Implementing multi-turn chatbot using sqlite (You can change to your db server)
+- Use asynchronous functions for concurrency.
 
 <br>
-
-
 
 ## Prerequisites
 - Python 3.10 or later
@@ -32,6 +32,8 @@ pip install -r requirements.txt
   - SQLITE_URL (or RDB_*)
   - OPENAI_API_KEY
 ``` yaml
+# .env
+
 SQLITE_URL=sqlite+aiosqlite:///sqlite3.db # Default
 # RDB_USERNAME=NOT_APPLICABLE
 # RDB_PASSWORD=NOT_APPLICABLE
@@ -51,15 +53,16 @@ OPENAI_API_KEY=openai_api_key # Required
 # BACKEND_HOST=localhost:8000
 ```
 
-### Preprocess
-1. add .pdf files in folder "./fixtures/"
-   - default 2 files in chroma db
-     - chroma/mydata_api_docs
-     - chroma/mydata_guideline_docs
-2. insert into Vector Database(Chroma) to use below.
+<br>
+
+### Preprocess (if you want to store more documents...)
+if you do this, the documents in **fixtures** will be stored in chromadb **chroma/mydata_other_docs**.
+1. add **.pdf** files in folder **"fixtures"**
+2. insert **.pdf** data into **vector db(Chroma)** using python code below.
    1. python preprocess/pdf_to_md.py
    2. python preprocess/md_to_vectordb.py
 
+<br>
 
 ### Run Backend Server
 - run following command:
@@ -106,11 +109,11 @@ streamlit run strealit_async.py
 <br>
 
 
-## Debug
-1. You can use **Langsmith** (Free for 1 user; 5,000 free traces per month)
-2. run mydata_chatbot/agents/gpt.py
-   1. refer to the **main** function at the bottom
-3. You can get retriever result. get rid of '#' in **mydata_chatbot/apis/v1/chat.py** in line 98.
+## How to check agent progress? 
+- You can use **Langsmith** (Free for 1 user; 5,000 free traces per month)
+- You can test agent by running **mydata_chatbot/agents/gpt.py**.
+   - Refer to the main function at the bottom 
+- You can get results of agent tools in streaming by editing code. <br>Delete '#' in **mydata_chatbot/apis/v1/chat.py** in line 98. <br> and call **stream_events** func.
 ```python
 elif kind == "on_tool_end":
     yield "\n"
@@ -134,7 +137,7 @@ locust -f tests/locustfile.py
 
 <br>
 
-## Agent Error Test
+## Pytest for agent streaming
 - pytest
 - set up the test env in "pytest.ini"
 ```bash
