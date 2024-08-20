@@ -90,14 +90,9 @@ def build():
 
     agent = create_openai_tools_agent(llm, tools, mydata_prompt)
 
-    if os.getenv("ENV") in ["dev", "stg"]:
-        verbose = True
-    else:
-        verbose = False
     agent_executor = AgentExecutor(
         agent=agent,
         tools=tools,
-        verbose=verbose,
         return_intermediate_steps=True,
         max_iterations=5,
     )
@@ -114,9 +109,10 @@ def build():
 
 
 async def main():
-    from langchain.globals import set_verbose
 
-    set_verbose(True)
+    from langchain.globals import set_verbose, set_debug
+    # set_verbose(True)
+    set_debug(True)
 
     agent = build()
     while True:
