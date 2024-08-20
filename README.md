@@ -34,6 +34,8 @@ pip install -r requirements.txt
 ``` yaml
 # .env
 
+ENV=dev  # if ENV=["dev", "stg"], verbose=True
+
 SQLITE_URL=sqlite+aiosqlite:///sqlite3.db # Default
 # RDB_USERNAME=NOT_APPLICABLE
 # RDB_PASSWORD=NOT_APPLICABLE

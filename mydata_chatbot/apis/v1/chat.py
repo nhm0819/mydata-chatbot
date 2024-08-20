@@ -7,7 +7,7 @@ from mydata_chatbot import agents
 from mydata_chatbot.schemas.prompt import Prompt
 
 
-router = APIRouter(prefix="/v1/chat")
+router = APIRouter(prefix="/v1/chat/gpt")
 
 logger = logging.getLogger(__name__)
 
@@ -17,43 +17,57 @@ llms = {
 }
 
 
-@router.post("/{model}/invoke", response_class=PlainTextResponse)
-async def invoke(model: str, p: Prompt) -> PlainTextResponse:
-    agent = llms[model]
+@router.post("/{model_version}/invoke", response_class=PlainTextResponse)
+async def invoke(model_version: str, p: Prompt) -> PlainTextResponse:
+    agent = llms["gpt"]
     res = await agent.ainvoke(
         input={"input": p.user_query},
-        config={"configurable": {"session_id": p.session_id}},
+        config={"configurable": {"session_id": p.session_id,
+                                 "gpt_version": model_version}},
     )
     return res["output"]
 
 
-@router.post("/{model}/stream", response_class=StreamingResponse)
-async def stream(model: str, p: Prompt) -> StreamingResponse:
-    logger.error(f"Streaming response for [{model.upper()}]")
+@router.post("/{model_version}/stream", response_class=StreamingResponse)
+async def stream(model_version: str, p: Prompt) -> StreamingResponse:
+    logger.error(f"Streaming response for [{model_version.upper()}]")
     logger.error(f"{p.session_id}: {p.user_query}]")
-    agent = llms[model]
+    agent = llms["gpt"]
 
     async def generate():
-        async for event in agent.astream(
+        # async for event in agent.astream(
+        #     input={"input": p.user_query},
+        #     config={"configurable": {"session_id": p.session_id}},
+        # ):
+        async for event in agent.astream_events(
             input={"input": p.user_query},
-            config={"configurable": {"session_id": p.session_id}},
+            config={"configurable": {"session_id": p.session_id,
+                                     "gpt_version": model_version}},
+            version="v1",
         ):
-            if "output" in event.keys():
-                yield event["output"]
+            kind = event["event"]
+            if kind == "on_chat_model_stream":
+                content = event["data"]["chunk"].content
+                if content:
+                    # Empty content in the context of OpenAI means
+                    # that the model is asking for a tool to be invoked.
+                    # So we only print non-empty content
+                    yield content
 
     return StreamingResponse(generate(), media_type="text/event-stream")
 
 
-@router.post("/{model}/stream_events", response_class=StreamingResponse)
-async def stream_events(model: str, p: Prompt) -> StreamingResponse:
-    logger.error(f"Streaming response for [{model.upper()}]")
+@router.post("/{model_version}/stream_events", response_class=StreamingResponse)
+async def stream_events(model_version: str, p: Prompt) -> StreamingResponse:
+    logger.error(f"Streaming response for [{model_version.upper()}]")
     logger.error(f"{p.session_id}: {p.user_query}]")
-    agent = llms[model]
+    agent = llms["gpt"]
 
     async def generate():
         async for event in agent.astream_events(
             input={"input": p.user_query},
-            config={"configurable": {"session_id": p.session_id}},
+            config={"configurable": {"session_id": p.session_id,
+                                     "gpt_version": model_version}},
             version="v1",
         ):
             kind = event["event"]

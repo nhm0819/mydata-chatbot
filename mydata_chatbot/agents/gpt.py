@@ -5,6 +5,7 @@ from langchain.agents import AgentExecutor, create_openai_tools_agent
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_openai import ChatOpenAI
 from langchain.tools.retriever import create_retriever_tool
+from langchain_core.runnables import ConfigurableField
 
 from langchain_community.chat_message_histories.sql import SQLChatMessageHistory
 from langchain_community.tools.tavily_search import TavilySearchResults
@@ -17,12 +18,16 @@ from mydata_chatbot.database.chroma import (
     mydata_other_docs_chroma,
 )
 
-from mydata_chatbot.configs import settings
-
 
 def build():
     # llm
-    llm = ChatOpenAI(model=settings.openai_model, temperature=1e-10, streaming=True)
+    llm = ChatOpenAI(temperature=0, streaming=True).configurable_fields(
+        model_name=ConfigurableField(
+            id="gpt_version",
+            name="Version of GPT",
+            description="Official model name of GPTs. ex) gpt-3.5-turbo, gpt-4o",
+        )
+    )
 
     # tools
     tools = []

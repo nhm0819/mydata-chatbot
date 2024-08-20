@@ -25,7 +25,7 @@ BACKEND_HOST = os.getenv("BACKEND_HOST", "http://127.0.0.1:8000")
 st.set_page_config(page_title="챗봇", page_icon="🤖", layout="wide")
 
 with st.sidebar:
-    MODEL = st.selectbox("Choose a model", ["gpt"], key="model")
+    MODEL = st.selectbox("Choose a model", ["gpt-3.5-turbo", "gpt-4o"], key="model")
     STREAM_MODE = st.selectbox(
         "Choose a model", ["stream", "stream_events"], key="stream_mode"
     )
@@ -43,7 +43,7 @@ for message in st.session_state.messages:
 
 
 async def streaming_response(user_query: str, session_id: str, **kwargs):
-    url = f"{BACKEND_HOST}/v1/chat/{MODEL}/{STREAM_MODE}"
+    url = f"{BACKEND_HOST}/v1/chat/gpt/{MODEL}/{STREAM_MODE}"
     if not url.startswith("http"):
         url = f"http://{url}"
     # url = f"{BACKEND_HOST}/v1/chat/{model}/stream_events"
