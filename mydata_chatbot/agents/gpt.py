@@ -17,6 +17,7 @@ from mydata_chatbot.database.chroma import (
     mydata_guideline_docs_chroma,
     mydata_other_docs_chroma,
 )
+from mydata_chatbot.crud.chat_history import SQLChatMessageSummaryHistory
 
 
 def build():
@@ -99,7 +100,7 @@ def build():
 
     return RunnableWithMessageHistory(
         agent_executor,
-        get_session_history=lambda session_id: SQLChatMessageHistory(
+        get_session_history=lambda session_id: SQLChatMessageSummaryHistory(
             session_id=session_id, connection=engine
         ),
         input_messages_key="input",
