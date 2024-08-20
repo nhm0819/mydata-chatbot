@@ -95,12 +95,15 @@ async def upload_pdf(
         f"Top 5 length of docs content: {sorted([len(doc.page_content) for doc in docs], reverse=True)[:5]}",
     )
 
-
     if len(await document.get_by_filename(db=db, filename=pdf_file.filename)) > 0:
-        raise HTTPException(status_code=404, detail=f"{pdf_file.filename} is already in db.")
+        raise HTTPException(
+            status_code=404, detail=f"{pdf_file.filename} is already in db."
+        )
 
     logger.info("Adding to ChromaDB...")
-    await mydata_other_docs_chroma.aadd_documents(documents=docs, ids=[str(uuid.uuid4()) for _ in range(len(docs))])
+    await mydata_other_docs_chroma.aadd_documents(
+        documents=docs, ids=[str(uuid.uuid4()) for _ in range(len(docs))]
+    )
 
     logger.info("Adding to RDB...")
     await document.create(db=db, obj_in=DocumentCreate(filename=pdf_file.filename))

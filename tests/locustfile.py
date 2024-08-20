@@ -2,14 +2,13 @@ from locust import HttpUser, task, between, TaskSet
 import time
 import requests
 
+
 class OrderTaskSet(TaskSet):
 
     @task
     def getIndex(self):
         ...
-        self.client.get(
-            "/"
-        )
+        self.client.get("/")
 
     @task
     def getStream(self):
@@ -27,7 +26,7 @@ class OrderTaskSet(TaskSet):
             stream=True,
         ) as response:
             streamed_test = ""
-            for chunk in response.iter_content(chunk_size=16, decode_unicode='utf-8'):
+            for chunk in response.iter_content(chunk_size=16, decode_unicode="utf-8"):
                 streamed_test += chunk
 
         print(time.time() - st)

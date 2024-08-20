@@ -12,7 +12,6 @@ class Settings(BaseSettings):
     sqlite_url: str = "sqlite+aiosqlite:///sqlite3.db"
 
     # open ai
-    openai_model: str = "gpt-3.5-turbo"
     openai_api_key: str = "openai_api_key"
 
     # tavily

@@ -6,6 +6,7 @@ from directories import fixtures, root, upload
 from tqdm import tqdm
 
 import dotenv
+
 dotenv.load_dotenv(root / ".env")
 
 from mydata_chatbot.database.chroma import (
@@ -25,8 +26,8 @@ def md2chroma(md_path):
 
     replace_list = []
     if (
-            md_filename
-            == "(수정게시) 금융분야 마이데이터 표준 API 규격 v1.md"
+        md_filename
+        == "(수정게시) 금융분야 마이데이터 표준 API 규격 v1.md"
     ):
         replace_list.append(r"금융분야 마이데이터 표준API 규격")
         replace_list.append(r"\n금융보안원www fsec or kr \*\*\d+\*\*\n")
@@ -51,7 +52,9 @@ def md2chroma(md_path):
 
     # Insert only existing images into metadata. (You have to remove the images yourself and leave only the images you need.)
     for idx, doc in enumerate(md_header_splits):
-        image_list = [line for line in doc.page_content.split('\n') if line.startswith('![]')]
+        image_list = [
+            line for line in doc.page_content.split("\n") if line.startswith("![]")
+        ]
         for image_path in image_list:
             if not os.path.exists(image_path.strip()[4:-1]):
                 doc.page_content = doc.page_content.replace(image_path, "")
@@ -75,7 +78,6 @@ def md2chroma(md_path):
     docs = text_splitter.split_documents(md_header_splits)
     print("Number of documents: ", len(docs))
 
-
     # update metadata
     for idx, doc in enumerate(docs):
         doc.id = idx + 1
@@ -86,7 +88,11 @@ def md2chroma(md_path):
             if header in doc.metadata.keys():
                 doc.page_content = doc.metadata[header] + "\n" + doc.page_content
 
-        image_list = [line.strip()[4:-1] for line in doc.page_content.split('\n') if line.startswith('![]')]
+        image_list = [
+            line.strip()[4:-1]
+            for line in doc.page_content.split("\n")
+            if line.startswith("![]")
+        ]
         if len(image_list) > 0:
             doc.metadata["images"] = str(image_list)
 
@@ -96,13 +102,13 @@ def md2chroma(md_path):
     )
 
     if (
-            md_filename
-            == "(수정게시) 금융분야 마이데이터 표준 API 규격 v1.md"
+        md_filename
+        == "(수정게시) 금융분야 마이데이터 표준 API 규격 v1.md"
     ):
         vectordb = mydata_api_docs_chroma
     elif (
-            md_filename
-            == "(221115 수정배포) (2022.10) 금융분야 마이데이터 기술 가이드라인.md"
+        md_filename
+        == "(221115 수정배포) (2022.10) 금융분야 마이데이터 기술 가이드라인.md"
     ):
         vectordb = mydata_guideline_docs_chroma
     else:
@@ -118,9 +124,7 @@ if __name__ == "__main__":
     md_list = glob.glob((upload / "**/*.md").__str__())
 
     # ProcessPoolExecutor or ThreadPoolExecutor
-    with ProcessPoolExecutor(
-        max_workers=2
-    ) as executor:
+    with ProcessPoolExecutor(max_workers=2) as executor:
         results = list(
             tqdm(
                 executor.map(md2chroma, [md_path for md_path in md_list]),

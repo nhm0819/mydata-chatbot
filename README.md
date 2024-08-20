@@ -36,22 +36,27 @@ pip install -r requirements.txt
 
 ENV=dev  # if ENV=["dev", "stg"], verbose=True
 
+### Database
 SQLITE_URL=sqlite+aiosqlite:///sqlite3.db # Default
 # RDB_USERNAME=NOT_APPLICABLE
 # RDB_PASSWORD=NOT_APPLICABLE
 # RDB_HOST=NOT_APPLICABLE
 # RDB_DB_NAME=NOT_APPLICABLE
 
+
+### Langsmith
 # LANGCHAIN_TRACING_V2=true
 # LANGCHAIN_PROJECT=hongmin
 # LANGCHAIN_ENDPOINT=https://api.smith.langchain.com
 # LANGCHAIN_API_KEY=langchain_api_key
 
-OPENAI_MODEL=gpt-3.5-turbo # put in openai model name
+### OpenAI
 OPENAI_API_KEY=openai_api_key # Required
 
+### Tavily Search
 # TAVILY_API_KEY=null
 
+### Streamlit
 # BACKEND_HOST=localhost:8000
 ```
 

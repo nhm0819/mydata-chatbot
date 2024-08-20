@@ -79,9 +79,9 @@ def build():
             mydata_other_docs_chroma.as_retriever(
                 search_type="mmr",
                 search_kwargs={
-                    'k': 4,
-                    'fetch_k': 20,
-                }
+                    "k": 4,
+                    "fetch_k": 20,
+                },
             ),
             name="when_cannot_answer",
             description="다른 도구들을 먼저 사용하고 답변할 수 없을 때 마지막으로 이 도구를 사용해야 합니다.",
@@ -94,8 +94,13 @@ def build():
         verbose = True
     else:
         verbose = False
-    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=verbose, return_intermediate_steps=True,
-                                   max_iterations=5)
+    agent_executor = AgentExecutor(
+        agent=agent,
+        tools=tools,
+        verbose=verbose,
+        return_intermediate_steps=True,
+        max_iterations=5,
+    )
 
     return RunnableWithMessageHistory(
         agent_executor,
@@ -118,7 +123,9 @@ async def main():
         message = input("Enter a message: ")
         async for event in agent.astream(
             input={"input": message},
-            config={"configurable": {"session_id": "foo"}},
+            config={
+                "configurable": {"session_id": "foo", "gpt_version": "gpt-3.5-turbo"}
+            },
         ):
             print(event)
             # if "intermediate_steps" in event.keys():
@@ -131,7 +138,8 @@ async def main():
         # async def generate():
         #     async for event in agent.astream_events(
         #         input={"input": message},
-        #         config={"configurable": {"session_id": "foo"}},
+        #         config={"configurable": {"session_id": "foo",
+        #                                "gpt_version": "gpt-3.5-turbo"}},
         #         version="v1",
         #     ):
         #         kind = event["event"]

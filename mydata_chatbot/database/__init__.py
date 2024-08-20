@@ -29,6 +29,7 @@ session: AsyncSession | async_scoped_session = async_scoped_session(
     scopefunc=asyncio.current_task,
 )
 
+
 async def get_db_session():
     db = session()
     try:

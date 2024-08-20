@@ -22,8 +22,9 @@ async def invoke(model_version: str, p: Prompt) -> PlainTextResponse:
     agent = llms["gpt"]
     res = await agent.ainvoke(
         input={"input": p.user_query},
-        config={"configurable": {"session_id": p.session_id,
-                                 "gpt_version": model_version}},
+        config={
+            "configurable": {"session_id": p.session_id, "gpt_version": model_version}
+        },
     )
     return res["output"]
 
@@ -37,12 +38,16 @@ async def stream(model_version: str, p: Prompt) -> StreamingResponse:
     async def generate():
         # async for event in agent.astream(
         #     input={"input": p.user_query},
-        #     config={"configurable": {"session_id": p.session_id}},
+        #     config={"configurable": {"session_id": p.session_id, "gpt_version": model_version}},
         # ):
         async for event in agent.astream_events(
             input={"input": p.user_query},
-            config={"configurable": {"session_id": p.session_id,
-                                     "gpt_version": model_version}},
+            config={
+                "configurable": {
+                    "session_id": p.session_id,
+                    "gpt_version": model_version,
+                }
+            },
             version="v1",
         ):
             kind = event["event"]
@@ -66,8 +71,12 @@ async def stream_events(model_version: str, p: Prompt) -> StreamingResponse:
     async def generate():
         async for event in agent.astream_events(
             input={"input": p.user_query},
-            config={"configurable": {"session_id": p.session_id,
-                                     "gpt_version": model_version}},
+            config={
+                "configurable": {
+                    "session_id": p.session_id,
+                    "gpt_version": model_version,
+                }
+            },
             version="v1",
         ):
             kind = event["event"]

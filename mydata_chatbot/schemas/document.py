@@ -11,7 +11,6 @@ class Document(BaseModel):
     type: Literal["Document"] = "Document"
 
 
-
 class DocumentBase(BaseModel):
     id: Optional[int]
     filename: str

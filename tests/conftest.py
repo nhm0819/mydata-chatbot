@@ -25,7 +25,6 @@ async def get_db_session():
         await db.close()
 
 
-
 @pytest_asyncio.fixture(scope="session", autouse=True)
 async def setup_logging_configs(request):
     """Cleanup a testing directory once we are finished."""

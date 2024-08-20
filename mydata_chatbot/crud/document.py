@@ -8,7 +8,9 @@ from mydata_chatbot.schemas.document import DocumentCreate, DocumentUpdate
 
 
 class CRUDDocument(CRUDBase[Document, DocumentCreate, DocumentUpdate]):
-    async def get_by_filename(self, db: AsyncSession, filename: str) -> Optional[ModelType]:
+    async def get_by_filename(
+        self, db: AsyncSession, filename: str
+    ) -> Optional[ModelType]:
         query = select(self.model).where(self.model.filename == filename)
         query_result = await db.execute(query)
         return query_result.all()
