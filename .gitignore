@@ -172,3 +172,4 @@ fixtures/*.pdf
 #mydata_chatbot/static/upload/
 
 *.log
+snippet.py

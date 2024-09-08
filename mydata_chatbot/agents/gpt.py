@@ -6,6 +6,8 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_openai import ChatOpenAI
 from langchain.tools.retriever import create_retriever_tool
 from langchain_core.runnables import ConfigurableField
+from langchain.callbacks.base import BaseCallbackHandler, AsyncCallbackHandler
+from langchain.callbacks.streaming_aiter import AsyncIteratorCallbackHandler
 
 from langchain_community.chat_message_histories.sql import SQLChatMessageHistory
 from langchain_community.tools.tavily_search import TavilySearchResults
@@ -22,7 +24,11 @@ from mydata_chatbot.crud.chat_history import SQLChatMessageSummaryHistory
 
 def build():
     # llm
-    llm = ChatOpenAI(temperature=0, streaming=True).configurable_fields(
+    llm = ChatOpenAI(
+        temperature=0,
+        streaming=True,
+        callbacks=[AsyncIteratorCallbackHandler()],
+    ).configurable_fields(
         model_name=ConfigurableField(
             id="gpt_version",
             name="Version of GPT",
@@ -119,10 +125,10 @@ async def main():
     while True:
         message = input("Enter a message: ")
         async for event in agent.astream(
-            input={"input": message},
-            config={
-                "configurable": {"session_id": "foo", "gpt_version": "gpt-3.5-turbo"}
-            },
+                input={"input": message},
+                config={
+                    "configurable": {"session_id": "foo", "gpt_version": "gpt-3.5-turbo"}
+                },
         ):
             print(event)
             # if "intermediate_steps" in event.keys():
