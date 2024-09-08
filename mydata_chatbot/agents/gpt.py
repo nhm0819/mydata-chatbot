@@ -12,7 +12,8 @@ from langchain.callbacks.streaming_aiter import AsyncIteratorCallbackHandler
 from langchain_community.chat_message_histories.sql import SQLChatMessageHistory
 from langchain_community.tools.tavily_search import TavilySearchResults
 
-from mydata_chatbot.database import engine
+# from mydata_chatbot.database import engine
+from mydata_chatbot.database import sessionmanager
 from mydata_chatbot.agents.prompts import mydata_prompt
 from mydata_chatbot.database.chroma import (
     mydata_api_docs_chroma,
@@ -107,7 +108,7 @@ def build():
     return RunnableWithMessageHistory(
         agent_executor,
         get_session_history=lambda session_id: SQLChatMessageSummaryHistory(
-            session_id=session_id, connection=engine
+            session_id=session_id, connection=sessionmanager._engine
         ),
         input_messages_key="input",
         output_messages_key="output",

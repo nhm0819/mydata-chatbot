@@ -10,7 +10,7 @@ import uuid
 
 from langchain.text_splitter import MarkdownHeaderTextSplitter, MarkdownTextSplitter
 from mydata_chatbot.database.chroma import mydata_other_docs_chroma
-from mydata_chatbot.database import get_db_session
+from mydata_chatbot.database import get_session
 from mydata_chatbot.crud.document import document
 from mydata_chatbot.schemas.document import DocumentCreate
 
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 @router.post("/upload/pdf")
 async def upload_pdf(
     pdf_file: Annotated[UploadFile, File(description="A PDF file")],
-    db: AsyncSession = Depends(get_db_session),
+    db: AsyncSession = Depends(get_session),
     write_images: bool = False,
     chunk_size: int = 300,
     chunk_overlap: int = 50,

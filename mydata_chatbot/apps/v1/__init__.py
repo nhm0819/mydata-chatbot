@@ -18,11 +18,25 @@ from mydata_chatbot.assemble import event
 from mydata_chatbot.assemble import exception
 from mydata_chatbot.assemble.middleware import cors_middleware
 
+from mydata_chatbot.database import sessionmanager
+from contextlib import asynccontextmanager
+from mydata_chatbot.configs import settings
+
+
+sessionmanager.init(settings.sqlite_url)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield
+    if sessionmanager._engine is not None:
+        await sessionmanager.close()
+
 app = FastAPI(
     docs_url="/docs",
     middleware=[
         cors_middleware,
     ],
+    lifespan=lifespan
 )
 
 # add static files
