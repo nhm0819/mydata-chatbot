@@ -91,7 +91,7 @@ def build():
                     "fetch_k": 20,
                 },
             ),
-            name="when_cannot_answer",
+            name="other_docs_search",
             description="다른 도구들을 먼저 사용하고 답변할 수 없을 때 마지막으로 이 도구를 사용해야 합니다.",
         )
     )

@@ -8,6 +8,7 @@ import json
 
 from mydata_chatbot import agents
 from mydata_chatbot.schemas.prompt import Prompt
+from mydata_chatbot.assemble.responses import StreamingResponseWithStatusCode
 
 
 router = APIRouter(prefix="/v1/chat/gpt")
@@ -107,7 +108,7 @@ async def stream_events(model_version: str, p: Prompt) -> StreamingResponse:
                             f"with output: {event['data'].get('output')['output']}"
                         )
                         yield "\n"
-                if kind == "on_chat_model_stream":
+                elif kind == "on_chat_model_stream":
                     content = event["data"]["chunk"].content
                     if content:
                         # Empty content in the context of OpenAI means
@@ -115,6 +116,7 @@ async def stream_events(model_version: str, p: Prompt) -> StreamingResponse:
                         # So we only print non-empty content
                         yield content
                 elif kind == "on_tool_start":
+                    num_events += 1
                     yield "\n"
                     yield (
                         f"Starting tool: {event['name']} "
@@ -129,16 +131,17 @@ async def stream_events(model_version: str, p: Prompt) -> StreamingResponse:
                     )
                     yield "\n"
 
-            except Exception as exc:
-                yield f"\n[Unhandled Error: {str(exc)}]"
-                break
+                else:
+                    continue
 
-            finally:
-                num_events += 1
-                if num_events > 30:
+                if num_events > 5:
                     # Truncate the output
                     yield "..."
                     break
 
+            except Exception as exc:
+                yield f"\n[Unhandled Error: {str(exc)}]"
+                break
 
-    return StreamingResponse(generate(), media_type="text/event-stream")
+
+    return StreamingResponseWithStatusCode(generate(), media_type="text/event-stream")
